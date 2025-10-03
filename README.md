@@ -1,0 +1,11 @@
+# Comandos
+- `-e`: cerrar el programa 
+- `-an <etiqueta>`: agregar u nodo (vertice) 
+- `-ae`: agregar una interfaz con otro nodo (arista)
+- `-dn <etiqueta> `: eliminar un nodo
+- `-de <etiqueta1> <etiqueta2>`: eliminar una conesión
+- `-rn <etiqueta_anterior> <etiqueta>_nueva`: renombrar nodo
+- `-ai`: agregar interfaz local (sin nodo adyacente)
+- `-si`: sustituir interfaces locales
+- `-r <etiqueta>`: crear archivo con rutas estaticas para un nodo en específico
+- `-ra`: crear archivo con rutas estaticas para todos los nodos existentes
