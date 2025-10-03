@@ -139,7 +139,7 @@ int main()
 						set_console_error();
 						std::cout << "[ERROR]: Falta una etiqueta.\n";
 						set_console_success();
-						std::cout << "          Uso: -de [ETIQUETA1] [ETIQUETA2]\n\n";
+						std::cout << "          Uso: -de <etiqueta1> <etiqueta2>\n\n";
 						reset_console_color();
 						continue;
 					}
@@ -148,7 +148,7 @@ int main()
 						set_console_error();
 						std::cout << "[ERROR]: Demasiados parametros.\n";
 						set_console_success();
-						std::cout << "          Uso: -de [ETIQUETA1] [ETIQUETA2]\n\n";
+						std::cout << "          Uso: -de <etiqueta1> <etiqueta2>\n\n";
 						reset_console_color();
 						continue;
 					}
@@ -161,7 +161,7 @@ int main()
 						set_console_error();
 						std::cout << "[ERROR]: Falta una etiqueta.\n";
 						set_console_success();
-						std::cout << "          Uso: -de [ETIQUETA_VIEJA] [ETIQUETA_NUEVA]\n\n";
+						std::cout << "          Uso: -de <etiqueta_anterior> <etiqueta_nueva>\n\n";
 						reset_console_color();
 						continue;
 					}
@@ -170,7 +170,7 @@ int main()
 						set_console_error();
 						std::cout << "[ERROR]: Demasiados parametros.\n";
 						set_console_success();
-						std::cout << "          Uso: -de [ETIQUETA_VIEJA] [ETIQUETA_NUEVA]\n\n";
+						std::cout << "          Uso: -de <etiqueta_anterior> <etiqueta_nueva>\n\n";
 						reset_console_color();
 						continue;
 					}
@@ -294,7 +294,7 @@ int main()
 						set_console_error();
 						std::cout << "[ERROR]: Falta una etiqueta.\n";
 						set_console_success();
-						std::cout << "          Uso: -r [ETIQUETA]\n\n";
+						std::cout << "          Uso: -r <etiqueta>\n\n";
 						reset_console_color();
 						continue;
 					}
@@ -303,7 +303,7 @@ int main()
 						set_console_error();
 						std::cout << "[ERROR]: Demasiados parametros.\n";
 						set_console_success();
-						std::cout << "          Uso: -r [ETIQUETA]\n\n";
+						std::cout << "          Uso: -r <etiqueta>\n\n";
 						reset_console_color();
 						continue;
 					}
