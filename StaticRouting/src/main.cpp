@@ -316,10 +316,12 @@ int main()
 						{
 							std::cout << "Directorio > ";
 							std::getline(std::cin, dir);
+
+							dir = Validator::trim(dir);
 							if (!fs::exists(dir))
 							{
 								set_console_error();
-								std::cout << "[ERROR]: Directorio inexistente: \"\"" << dir << "\\n\n";
+								std::cout << "[ERROR]: Directorio inexistente: \"\"" << dir << "\"\n\n";
 								reset_console_color();
 								continue;
 							}
@@ -350,24 +352,25 @@ int main()
 					}
 
 					bool repeat = true;
-					std::string dir;
+					std::string root_dir;
 					do
 					{
 						std::cout << "Directorio > ";
-						std::getline(std::cin, dir);
-						if (!fs::exists(dir))
+						std::getline(std::cin, root_dir);
+						root_dir = Validator::trim(root_dir);
+						if (!fs::exists(root_dir))
 						{
 							set_console_error();
-							std::cout << "[ERROR]: Directorio inexistente: \"\"" << dir << "\\n\n";
+							std::cout << "[ERROR]: Directorio inexistente: \"\"" << root_dir << "\"\n\n";
 							reset_console_color();
 							continue;
 						}
 						repeat = false;
 					} while (repeat);
 
-					dir += "\\" + rq_vec[1] + ".cfg";
 					for (const auto n : g.nodes())
 					{
+						std::string dir = root_dir + "\\" + n->get_label() + ".cfg";
 						auto routes = Validator::route_from_node(n);
 						Validator::save_to_file(dir, routes, "ip route ");
 					}
