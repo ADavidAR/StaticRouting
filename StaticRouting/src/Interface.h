@@ -27,8 +27,8 @@ public:
     int get_local_ip_address() const { return m_ip_address1; }
     int get_neighbor_ip_address() const { return m_ip_address2; }
     auto get_neighbor() const { return m_neighbor_node;  }
-    short get_mask_length() { return m_mask_length; }
-    int get_network_ip_address() { return m_network_ip_address; }
+    short get_mask_length() const { return m_mask_length; }
+    int get_network_ip_address() const { return m_network_ip_address; }
     std::string get_dotted_mask() const;
     std::string get_dotted_network_ip_address() const;
     std::string get_full_dotted_network_ip_address () const;

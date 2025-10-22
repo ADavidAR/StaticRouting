@@ -6,7 +6,8 @@
 #include <cctype>
 #include <unordered_set>
 #include <fstream>
-
+#include <queue>
+#include <algorithm>
 #include "Graph.h"
 
 class Validator {
@@ -14,27 +15,46 @@ public:
     static std::vector<std::string> route_from_node(Node* node)
     {
 
-        std::vector<std::string> routes;
-
+        std::vector<std::string> res;
+        std::unordered_map<std::string, std::priority_queue<m_Pair, std::vector<m_Pair>, m_Compare_Pairs>> routes;
         for (const auto& [l, i] : node->get_iinterfaces_w_neighbor())
         {
 
-            std::unordered_set<std::string> r;
-            std::unordered_set<std::string> v {node->get_label()};
-            m_graph_traversal(i.get_neighbor(), r, v);
+            std::unordered_map<std::string, int> r;
+            std::unordered_set<std::string> v{ node->get_label() };
+            m_graph_traversal(i.get_neighbor(), r, v, i.get_network_ip_address());
 
-            for (const auto& net : r)
+            for (const auto& [ip, hops] : r)
             {
-                routes.push_back(net + " " + Interface::bin_to_dotted(i.get_neighbor_ip_address()));
+                m_Pair p(Interface::bin_to_dotted(i.get_neighbor_ip_address()), hops);
+                if (!routes.count(ip))
+                {
+                    std::priority_queue<m_Pair, std::vector<m_Pair>, m_Compare_Pairs> pq;
+                    pq.push(p);
+
+                    routes[ip] = pq;
+                    continue;
+                }+
+
+                routes[ip].push(p);
             }
         }
-        return routes;
+
+        for (auto& [net, next_hops] : routes)
+        {
+            while (!next_hops.empty())
+            {
+                res.push_back(net + " " + next_hops.top().ip);
+                next_hops.pop();
+            }
+        }
+        return res;
     }
 
     static void save_to_file(const std::string& filename, std::vector<std::string> lines, std::string prefix = "")
     {
         std::ofstream f(filename);
-        
+
         for (const auto& l : lines)
             f << prefix << l << "\n";
         f.close();
@@ -76,20 +96,48 @@ public:
 
 
 private:
-    static void m_graph_traversal(Node* u, std::unordered_set<std::string>&routes, std::unordered_set<std::string>& visited)
+    struct m_Pair {
+        std::string ip;
+        int hops;
+    };
+
+    struct m_Compare_Pairs {
+        bool operator()(m_Pair a, m_Pair b) const { return a.hops > b.hops; }
+    };
+
+    static void m_graph_traversal(Node* u, std::unordered_map<std::string, int>& routes, std::unordered_set<std::string>& visited, int exclude, int hops = 1)
     {
         if (visited.find(u->get_label()) == visited.end())
         {
             visited.insert(u->get_label());
             for (const auto& [l, i] : u->get_neighborless_iinterfaces())
-                routes.insert(i.get_full_dotted_network_ip_address());
+            {
+                std::string ip = i.get_full_dotted_network_ip_address();
+                if (!routes.count(ip))
+                {
+                    routes[ip] = hops;
+                    continue;
+                }
+                routes[ip] = min(routes[ip], hops);
+            }
+
         }
 
-        for (const auto&[l, i] : u->get_iinterfaces_w_neighbor())
+        for (const auto& [l, i] : u->get_iinterfaces_w_neighbor())
         {
             Node* v = i.get_neighbor();
+            if (i.get_network_ip_address() != exclude)
+            {
+                std::string ip = i.get_full_dotted_network_ip_address();
+                if (!routes.count(ip))
+                {
+                    routes[ip] = hops;
+                }
+                else
+                    routes[ip] = min(routes[ip], hops);
+            }
             if (visited.find(v->get_label()) == visited.end())
-                m_graph_traversal(v, routes, visited);
+                m_graph_traversal(v, routes, visited, exclude, hops + 1);
         }
     }
 
@@ -111,32 +159,32 @@ private:
     static bool m_is_number(const std::string& str)
     {
         if (str.empty()) return false;
-        
-        for (char c : str) 
+
+        for (char c : str)
             if (!std::isdigit(c)) return false;
-        
+
         return true;
     }
 
     static bool m_is_valid_octet(const std::string& octetStr)
     {
         if (!m_is_number(octetStr)) return false;
-        
+
         int octet = std::stoi(octetStr);
-        
+
         return (octet >= 0 && octet <= 255);
     }
 
     static bool m_is_valid_CIDR(int cidr) { return (cidr >= 0 && cidr <= 32); }
 
-    static bool m_is_valid_subnet_mask(const std::vector<int>& octets) 
+    static bool m_is_valid_subnet_mask(const std::vector<int>& octets)
     {
         if (octets.size() != 4) return false;
-        
+
         unsigned int mask = (octets[0] << 24) | (octets[1] << 16) | (octets[2] << 8) | octets[3];
-        
+
         if (mask == 0) return false;
-        
+
         unsigned int complement = ~mask;
         return (complement & (complement + 1)) == 0;
     }
@@ -147,7 +195,7 @@ private:
         std::istringstream iss(ipStr);
         std::string octet;
 
-        while (std::getline(iss, octet, '.')) 
+        while (std::getline(iss, octet, '.'))
         {
             result.push_back(std::stoi(octet));
         }
@@ -161,7 +209,7 @@ private:
         std::istringstream iss(trimmed);
         std::string octet;
 
-        while (std::getline(iss, octet, '.')) 
+        while (std::getline(iss, octet, '.'))
             octets.push_back(octet);
 
         if (octets.size() != 4) return false;
